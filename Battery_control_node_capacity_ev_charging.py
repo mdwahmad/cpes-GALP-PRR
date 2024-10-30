@@ -93,8 +93,11 @@ df = pd.DataFrame(data)
 print(df.to_string(index=False))
 
 
+################################
+################################
 
-# Assuming the DataFrame 'df' contains the simulation results as per the provided code
+
+# DataFrame 'df' contains the simulation results as per the provided code
 hours = df['Hour']
 ev_demand = df['EV Demand (kW)']
 charge = df['Charge (kW)']
@@ -102,13 +105,14 @@ discharge = df['Discharge (kW)']
 soc = df['SOC (kWh)']
 cars_charging = df['Cars Charging']
 
-fig, ax1 = plt.subplots(figsize=(14, 8))
+# Increase figure size for better visibility
+fig, ax1 = plt.subplots(figsize=(20, 12))  # Adjusted figure size for better visibility
 
 # Plot EV Demand
 ax1.plot(hours, ev_demand, label='EV Demand (kW)', color='blue', marker='o', linestyle='-')
-ax1.set_xlabel('Hour')
-ax1.set_ylabel('EV Demand (kW) / SOC (kWh)', color='blue')
-ax1.tick_params(axis='y', labelcolor='blue')
+ax1.set_xlabel('Hour', fontsize=14)  # Increased font size
+ax1.set_ylabel('EV Demand (kW) / SOC (kWh)', color='blue', fontsize=14)  # Increased font size
+ax1.tick_params(axis='y', labelcolor='blue', labelsize=12)  # Increased tick label size
 
 # Adding SOC to the same axis
 ax1.plot(hours, soc, label='SOC (kWh)', color='red', linestyle='--')
@@ -116,20 +120,21 @@ ax1.fill_between(hours, 0, soc, color='red', alpha=0.1)  # Fill under SOC curve
 
 # Instantiate a second y-axis to plot charging activities and number of cars charging
 ax2 = ax1.twinx()
-ax2.set_ylabel('Charging/Discharging (kW)', color='green')
+ax2.set_ylabel('Charging/Discharging (kW) / Cars Charging', color='green', fontsize=14)  # Increased font size
 ax2.step(hours, charge, label='Charging (kW)', color='green', linestyle='-', where='post')
 ax2.step(hours, -discharge, label='Discharging (kW)', color='orange', linestyle='-', where='post')  # Negative for visual distinction
 ax2.bar(hours, cars_charging, color='grey', alpha=0.3, label='Cars Charging')
-ax2.tick_params(axis='y', labelcolor='green')
+ax2.tick_params(axis='y', labelcolor='green', labelsize=12)  # Increased tick label size
 
-# Legend
-fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
+# Adding legends to the plot
+ax1.legend(loc='upper left', fontsize=12)  # Increased legend font size
+ax2.legend(loc='upper right', fontsize=12)  # Increased legend font size
 
-plt.title('24-Hour Battery and EV Charging Dynamics with Vehicle Counts')
 plt.show()
 
 
-
+#######################
+#######################
 # Lighter colors for better distinction
 colors = {
     'EV Demand': '#add8e6',  # Light blue
@@ -150,19 +155,19 @@ filtered_soc = df['SOC (kWh)'][specified_periods].values
 filtered_cars_charging = df['Cars Charging'][specified_periods].values
 
 # Setup for the plot
-fig, ax = plt.subplots(figsize=(12, 7))
+fig, ax = plt.subplots(figsize=(18, 10))  # Increased plot size
 
 # Bar width
 bar_width = 0.15
 
-# Positions of the bar groups for the specified periods
+# Positions of the bar groups
 r1 = np.arange(len(specified_periods))
 r2 = [x + bar_width for x in r1]
 r3 = [x + bar_width for x in r2]
 r4 = [x + bar_width for x in r3]
 r5 = [x + bar_width for x in r4]
 
-# Plotting bars with lighter colors
+# Plotting bars with specified colors
 ax.bar(r1, filtered_ev_demand, color=colors['EV Demand'], width=bar_width, edgecolor='grey', label='EV Demand (kW)')
 ax.bar(r2, filtered_charge, color=colors['Charging'], width=bar_width, edgecolor='grey', label='Charging (kW)')
 ax.bar(r3, filtered_discharge, color=colors['Discharging'], width=bar_width, edgecolor='grey', label='Discharging (kW)')
@@ -172,27 +177,28 @@ ax.bar(r5, filtered_cars_charging, color=colors['Cars Charging'], width=bar_widt
 # Adding values on top of each bar
 def add_values(ax, data, positions):
     for pos, value in zip(positions, data):
-        ax.text(pos, value + 0.5, round(value, 1), ha='center', va='bottom', fontsize=8)
+        ax.text(pos, value + 1, f'{value:.1f}', ha='center', va='bottom', fontsize=10, color='black', rotation=90, fontweight='bold')  # Make values bold
 
+# Call the function to add values
 add_values(ax, filtered_ev_demand, r1)
 add_values(ax, filtered_charge, r2)
 add_values(ax, filtered_discharge, r3)
 add_values(ax, filtered_soc, r4)
 add_values(ax, filtered_cars_charging, r5)
 
-
 # Add the P_max line as an asymptote
 ax.axhline(y=P_max, color='red', linestyle='--', linewidth=2, label=f'Max Power Capacity ({P_max} kW)')
 
+# Adjust y-axis limit if necessary
+ax.set_ylim(0, max(np.max(filtered_ev_demand), np.max(filtered_charge), np.max(filtered_discharge), np.max(filtered_soc), np.max(filtered_cars_charging), P_max) + 10)  # Extending y-axis
+
 # Final plot adjustments
-ax.set_xlabel('Hour of the Day')
-ax.set_ylabel('Values')
-ax.set_title('Battery and EV Charging Dynamics for Selected Periods')
+ax.set_xlabel('Hour of the Day', fontsize=14)
+ax.set_ylabel('Values', fontsize=14)
+#ax.set_title('Battery and EV Charging Dynamics for Selected Periods', fontsize=16)
 ax.set_xticks([r + 2*bar_width for r in range(len(specified_periods))])
-ax.set_xticklabels(specified_periods)
+ax.set_xticklabels(specified_periods, fontsize=12)
 ax.legend()
 
 plt.tight_layout()
 plt.show()
-
-
